@@ -19,3 +19,13 @@ Aditya:-
 -Helped establish judge-safe terminology and framing, avoiding morbid or sensitive language while preserving technical clarity.
 -Supported API contract definition to enable parallel frontend–backend development and smooth final integration.
 
+Praneeth:-
+-Developed the Core Integration Logic (glue_algorithm.py):You wrote the central Python orchestrator that manages the entire lifecycle of a file (Split -> Encrypt -> Hide -> Retrieve).
+-Cross-Language Interoperability: You successfully implemented ctypes to load the C encryption library (mechanic.dll) and subprocess to control the C++ splitting engines (split.exe/merge.exe), enabling seamless    communication between three different languages.
+-Designed the "Fractal Storage" Workflow:
+    Secure Storage: Implemented the secure_store function, which automates the fragmentation of sensitive files, encrypts them individually, and scatters them with obfuscated system filenames(e.g.,sys_A1aHmAPh.dat).
+-Automated Retrieval: Built the secure_retrieve logic that reverses the entropy, decrypting shards and stitching them back together using the C++ merger.
+-Solved Critical Architecture Challenges:Path Independence: You fixed the "File Not Found" system errors by implementing dynamic absolute pathing (BASE_DIR), ensuring the backend runs reliably from any directory  or environment.
+-Logic Bridging: You identified and fixed a critical logic gap in the C++ Merger by writing a Python adapter that strips file suffixes (_shard_) before passing arguments, preventing the merge engine from crashing.
+-System State Management:Implemented the Master Map system (master_map.json) to track the relationship between original files and their hidden, encrypted shards without exposing their contents.
+-Security Feature Design (Dead Man's Switch):You conceptualized and integrated the "Inactivity Trigger" logic, designing the system to automatically execute the retrieval protocol and alert the nominee after a defined grace period (e.g., 14 days of silence).
