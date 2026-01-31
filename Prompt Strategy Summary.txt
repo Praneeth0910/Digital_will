@@ -1,0 +1,12 @@
+Randhir:-
+ - Encrypt the given text using XOR encryption.
+   Use the provided secret key.
+   Apply XOR operation character-by-character between the text and the key.
+   If the key is shorter than the text, repeat the key cyclically.
+   Output the encrypted result in hexadecimal format.
+ 
+ - Decrypt the given XOR-encrypted hexadecimal text.
+   Use the same secret key that was used during encryption.
+   Apply XOR operation to retrieve the original plaintext.
+   Ensure the output is human-readable text.
+Praneeth:-
