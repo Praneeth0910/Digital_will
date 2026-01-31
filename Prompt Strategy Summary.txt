@@ -1,5 +1,5 @@
 Randhir:-
- - Encrypt the given text using XOR encryption.
+ - Encrypt the given data using XOR encryption.
    Use the provided secret key.
    Apply XOR operation character-by-character between the text and the key.
    If the key is shorter than the text, repeat the key cyclically.
@@ -9,4 +9,13 @@ Randhir:-
    Use the same secret key that was used during encryption.
    Apply XOR operation to retrieve the original plaintext.
    Ensure the output is human-readable text.
-Praneeth:-
+
+Aditya:-
+- Led the design of a native C++ security engine responsible for encrypting and decrypting sensitive digital asset metadata.
+-Defined strict separation of concerns between frontend, backend, cryptographic logic, and blockchain layers.
+-Implemented secure Python ↔ C++ bindings to ensure the backend never handles plaintext secrets.
+-Contributed to backend architecture using Python (FastAPI), focusing on inactivity-based access logic and secure API design.
+-Collaborated on the trust layer design using Solidity smart contracts to enable verifiable, tamper-resistant continuity triggers.
+-Helped establish judge-safe terminology and framing, avoiding morbid or sensitive language while preserving technical clarity.
+-Supported API contract definition to enable parallel frontend–backend development and smooth final integration.
+
