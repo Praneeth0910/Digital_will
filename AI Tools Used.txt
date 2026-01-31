@@ -7,4 +7,5 @@ ChatGPT (used for:
 - Documentation drafting)
 Gemini: For brainstorming the "Digital Map" logic and code optimization.
 GitHub Copilot: For accelerating backend development.
+Claude sonnet 4.5 (for building frontend UI/UX)
 
