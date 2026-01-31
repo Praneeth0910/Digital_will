@@ -29,3 +29,22 @@ Praneeth:-
 -Logic Bridging: You identified and fixed a critical logic gap in the C++ Merger by writing a Python adapter that strips file suffixes (_shard_) before passing arguments, preventing the merge engine from crashing.
 -System State Management:Implemented the Master Map system (master_map.json) to track the relationship between original files and their hidden, encrypted shards without exposing their contents.
 -Security Feature Design (Dead Man's Switch):You conceptualized and integrated the "Inactivity Trigger" logic, designing the system to automatically execute the retrieval protocol and alert the nominee after a defined grace period (e.g., 14 days of silence).
+
+Chirag:-
+- Built a role-based frontend system with separate flows for Account owners and Nominees.
+- Designed Secure authentication UIs for user login,registration,and nominee access.
+- Created an intuitive Digital Asset index UI with cards,version tracking,and empty-state guidance.
+- Implemented a user Dashboard with:
+* Continuity Access status
+* Digital Asset index with verson history
+* Personal Legacy notes creation
+* Nominee management section
+ - Built a Nominee Access portal with a step-based verification flow and document and upload interfacem
+ - Designed a security-first,state-driven frontend that actively guides user behaviour,prevents premature or unauthorized actions through clear status messaging and irreversible confirmations,maintains usability even in empty or restricted states,and ensures nominees recieve strictly controlled,read-only access aligned with real-world legal and inheritace wworkfllows.
+
+Adarsh:-
+- Implemented a MongoDB-based identity and access layer to store users,nominees,access states,and system-generated Beneficiary Reference IDs(BEN-IDs).
+- Enforced a state-driven nominee access model to prevent premature or unauthorized access(like inactive,pending_verification,active).
+- Designed database flows to be audit-friendly and legally defensible,enssuring every access decision is explainable and traceable.
+- Separated identity metadata from sensitive user data,storing only access control information in MongoDB while keeping encrypted assets outside the database.
+-  Enforced a MOngoDB-based access-control system that securly links users and nominees,manages system-generated beneficiary reference IDs,enforces state-driven access activation,and keeps sensitive user data outside the database.
