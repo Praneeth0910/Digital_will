@@ -2,12 +2,12 @@ Tech Stack :-
 
 Technologies used and their purpose:
 
-1.Frontend: React
+1.Frontend: React.js & Typescript
 
 2.Backend: Python / C++ / C
 
 3.Encryption: C-based XOR encryption module (prototype)
 
-4.API Layer: Python ↔ C integration
+4.API Layer: Python ↔ C & C++ integration
 
 5.Storage: Database(Superbase) / Local device storage
