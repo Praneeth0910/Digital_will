@@ -6,7 +6,7 @@ In the 21st century, a person’s life is no longer only physical. It is spread 
 
 -Crypto wallets
 
--Cloud storage (photos, documents)
+-Local storage (photos, documents)
 
 -Social media accounts
 
@@ -24,3 +24,4 @@ Passwords and encrypted data become inaccessible
 Valuable money and memories are permanently lost
 
 This creates a situation called “Digital Paralysis”, where families cannot access or manage digital assets after the owner’s death or incapacity.
+
