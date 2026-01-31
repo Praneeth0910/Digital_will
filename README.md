@@ -90,7 +90,7 @@ Instead of relying only on traditional text passwords, our platform introduces *
 ## 🛠️ Tech Stack
 
 - Frontend: React
-- Backend: Python / Node.js
+- Backend: Python / C++
 - Encryption: C-based XOR encryption module (prototype)
 - Video Processing: Secure metadata extraction
 - API Layer: Python ↔ C integration
