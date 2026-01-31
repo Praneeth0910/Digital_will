@@ -1,6 +1,6 @@
 # Digital Dark Age
 ### Solving the Crisis of Digital Inheritance
-
+“We never store secrets. We only orchestrate access.”
 ---
 
 ## 🚨 Problem
