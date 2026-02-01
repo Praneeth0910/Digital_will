@@ -388,31 +388,34 @@ function UserDashboard() {
         setNewFile({ title: '', description: '', category: 'Other', fileName: '' });
         setSelectedFile(null);
         
-        // Add the new asset to the list immediately from the backend response
+        // Add the new asset to vaultFiles immediately from the backend response
         if (response.data) {
-          console.log('Adding new asset to dashboard:', response.data);
-          const newAsset: DigitalAsset = {
-            id: response.data._id,
+          console.log('Backend asset response:', response.data);
+          
+          // Transform backend asset data to VaultFile format
+          const newVaultFile: VaultFile = {
+            id: response.data._id || response.data.id,
             ownerId: user.id,
-            assetName: response.data.asset_name,
-            assetType: response.data.asset_type,
-            description: response.data.description,
-            filePath: response.data.file_path,
-            status: response.data.status,
-            encrypted: response.data.encrypted,
-            version: 1,
-            createdAt: new Date(response.data.createdAt || Date.now()).toISOString(),
-            updatedAt: new Date(response.data.updatedAt || Date.now()).toISOString()
+            title: response.data.asset_name || newFile.title,
+            description: response.data.description || '',
+            category: (response.data.asset_type || 'Other') as 'Legal' | 'Financial' | 'Personal' | 'Credentials' | 'Other',
+            status: 'Active',
+            versions: [{
+              versionNumber: 1,
+              uploadedAt: new Date(response.data.createdAt || response.data.created_at || Date.now()).toISOString(),
+              uploadedBy: user.name || user.email,
+              fileName: selectedFile?.name || 'unknown',
+              fileSize: selectedFile?.size || 0,
+              changes: 'Initial upload'
+            }],
+            createdAt: new Date(response.data.createdAt || response.data.created_at || Date.now()).toISOString(),
+            lastUpdated: new Date(response.data.updatedAt || response.data.updated_at || response.data.last_modified || Date.now()).toISOString()
           };
           
-          // Add new asset to the beginning of the list
-          setAssets(prevAssets => [newAsset, ...prevAssets]);
-        } else {
-          // Fallback: refresh from localStorage
-          if (user) {
-            const userAssets = getAssetsByOwnerId(user.id);
-            setAssets(userAssets);
-          }
+          console.log('Formatted vault file:', newVaultFile);
+          
+          // Add new file to the beginning of the list
+          setVaultFiles(prevFiles => [newVaultFile, ...prevFiles]);
         }
       } else {
         // Show detailed error message

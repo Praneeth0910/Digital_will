@@ -1,3 +1,4 @@
+import '../styles/NomineeDashboard.css';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { nomineeApi, type NomineeDashboardData, type DigitalAsset, type LegacyNote, type AuditLog } from '../api/client';
@@ -194,89 +195,38 @@ export default function NomineeDashboard() {
   const { owner, nominee, assets, notes, verification, auditLogs, session, access_granted } = dashboardData;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="nominee-dashboard">
       {/* Legal Access Header */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Shield className="w-10 h-10 text-blue-400" />
-              <div>
-                <h1 className="text-2xl font-bold">Digital Inheritance Access Portal</h1>
-                <p className="text-gray-300 text-sm mt-1">Secure Read-Only Access</p>
-              </div>
-            </div>
+      <div className="nominee-header">
+        <div className="header-content">
+          <div className="header-left">
+            <h1>Digital Inheritance Access Portal</h1>
+            <p className="header-subtitle">Secure Read-Only Access</p>
+          </div>
+          <div className="header-right">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition"
+              className="btn btn-danger"
             >
               <LogOut className="w-4 h-4" />
               End Session
             </button>
           </div>
-
-          {/* Owner & Nominee Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <User className="w-5 h-5 text-blue-300" />
-                <h3 className="font-semibold">Account Owner</h3>
-              </div>
-              <p className="text-lg font-bold">{owner.name}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                  owner.status === 'DECEASED' 
-                    ? 'bg-red-500/20 text-red-200' 
-                    : 'bg-green-500/20 text-green-200'
-                }`}>
-                  {owner.status === 'DECEASED' ? 'DECEASED (Verified)' : 'ACTIVE'}
-                </span>
-              </div>
-              {owner.continuity_trigger_date && (
-                <p className="text-sm text-gray-300 mt-2">
-                  Access Triggered: {new Date(owner.continuity_trigger_date).toLocaleDateString()}
-                </p>
-              )}
-            </div>
-
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Shield className="w-5 h-5 text-blue-300" />
-                <h3 className="font-semibold">Nominee Details</h3>
-              </div>
-              <p className="text-lg font-bold">{nominee.name}</p>
-              <p className="text-sm text-gray-300">Relationship: {nominee.relationship}</p>
-              <p className="text-sm text-gray-300">BEN-ID: {nominee.ben_id}</p>
-              <p className="text-sm text-gray-300 mt-2">Access Type: <strong>{nominee.access_type}</strong></p>
-            </div>
-          </div>
-
-          {/* Legal Warning Banner */}
-          <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 mt-4 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-yellow-300 flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-semibold text-yellow-200">Legal Notice & Audit Compliance</p>
-              <p className="text-yellow-100 mt-1">
-                All actions are logged and legally auditable. Unauthorized distribution of accessed materials is prohibited. 
-                Data access is governed by the account owner's continuity instructions and applicable laws.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="main-content">
         {!access_granted ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Access Not Granted</h2>
-            <p className="text-gray-600">
+          <div className="access-denied-panel">
+            <Lock className="w-16 h-16" />
+            <h2>Access Not Granted</h2>
+            <p>
               Continuity access has not been triggered yet, or your verification is pending.
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="content-sections">
             {/* Inherited Digital Assets */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center gap-3 mb-6">
