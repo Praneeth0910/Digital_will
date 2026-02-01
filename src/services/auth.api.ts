@@ -3,7 +3,7 @@
  * Handles all authentication-related API calls
  */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`;
 
 interface AuthResponse {
   success: boolean;
@@ -70,7 +70,7 @@ export const registerUser = async (userData: {
     if (error.message.includes('Failed to fetch')) {
       return {
         success: false,
-        message: 'Failed to connect to server. Please ensure the backend is running on http://localhost:5000'
+        message: 'Failed to connect to server. Please check your connection and try again.'
       };
     }
 
@@ -123,7 +123,7 @@ export const loginUser = async (credentials: {
     if (error.message.includes('Failed to fetch')) {
       return {
         success: false,
-        message: 'Failed to connect to server. Please ensure the backend is running on http://localhost:5000'
+        message: 'Failed to connect to server. Please check your connection and try again.'
       };
     }
 
@@ -177,7 +177,7 @@ export const verifyToken = async (token: string): Promise<ApiResult> => {
  */
 export const checkServerHealth = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`http://localhost:5000/health`);
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/health`);
     const data = await response.json();
     
     console.log('🏥 Server Health:', data);

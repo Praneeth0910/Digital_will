@@ -44,7 +44,10 @@ app.use(cors({
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
       'http://127.0.0.1:3002',
-      'http://127.0.0.1:3003'
+      'http://127.0.0.1:3003',
+      // Add your Render frontend URL here after deployment
+      // Example: 'https://digital-will-frontend.onrender.com'
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
     ];
     
     // Allow requests with no origin (mobile apps, curl, postman)
