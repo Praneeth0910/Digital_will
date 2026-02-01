@@ -356,51 +356,78 @@ function UserDashboard() {
 
     setLoadingStates(prev => ({ ...prev, addFile: true }));
 
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // ✅ CORRECT WAY: Create FormData object
+      const formData = new FormData();
+      formData.append('file', selectedFile);           // Must match backend: upload.single('file')
+      formData.append('title', newFile.title);         // Add other text fields
+      formData.append('description', newFile.description);
+      formData.append('category', newFile.category);
 
-    // Create FormData for backend submission
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('title', newFile.title);
-    formData.append('description', newFile.description);
-    formData.append('category', newFile.category);
-    formData.append('ownerId', user.id);
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showToast('Authentication token not found', 'error');
+        setLoadingStates(prev => ({ ...prev, addFile: false }));
+        return;
+      }
 
-    // Log FormData contents (for demonstration)
-    console.log('=== FormData Ready for Backend ===');
-    console.log('File:', selectedFile.name, '-', selectedFile.size, 'bytes');
-    console.log('Title:', newFile.title);
-    console.log('Category:', newFile.category);
-    console.log('Description:', newFile.description);
-    console.log('FormData object:', formData);
+      console.log('=== Uploading File to Backend ===');
+      console.log('File:', selectedFile.name, '-', selectedFile.size, 'bytes');
+      console.log('Title:', newFile.title);
+      console.log('Category:', newFile.category);
 
-    const file: VaultFile = {
-      id: `file-${Date.now()}`,
-      ownerId: user.id,
-      title: newFile.title,
-      description: newFile.description,
-      category: newFile.category,
-      status: 'Active',
-      versions: [
-        {
-          versionNumber: 1,
-          uploadedAt: new Date().toISOString(),
-          fileSize: formatFileSize(selectedFile.size),
-          fileName: selectedFile.name,
-          file: selectedFile
+      // ✅ Send as Multipart Form via API
+      const response = await userApi.uploadAsset(token, formData);
+
+      console.log('Backend Response:', response);
+
+      if (response.success) {
+        showToast('✅ File Encrypted & Secured!', 'success');
+        setShowAddFileModal(false);
+        setNewFile({ title: '', description: '', category: 'Other', fileName: '' });
+        setSelectedFile(null);
+        
+        // Add the new asset to the list immediately from the backend response
+        if (response.data) {
+          console.log('Adding new asset to dashboard:', response.data);
+          const newAsset: DigitalAsset = {
+            id: response.data._id,
+            ownerId: user.id,
+            assetName: response.data.asset_name,
+            assetType: response.data.asset_type,
+            description: response.data.description,
+            filePath: response.data.file_path,
+            status: response.data.status,
+            encrypted: response.data.encrypted,
+            version: 1,
+            createdAt: new Date(response.data.createdAt || Date.now()).toISOString(),
+            updatedAt: new Date(response.data.updatedAt || Date.now()).toISOString()
+          };
+          
+          // Add new asset to the beginning of the list
+          setAssets(prevAssets => [newAsset, ...prevAssets]);
+        } else {
+          // Fallback: refresh from localStorage
+          if (user) {
+            const userAssets = getAssetsByOwnerId(user.id);
+            setAssets(userAssets);
+          }
         }
-      ],
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString()
-    };
-
-    setVaultFiles([...vaultFiles, file]);
-    setShowAddFileModal(false);
-    setNewFile({ title: '', description: '', category: 'Other', fileName: '' });
-    setSelectedFile(null);
-    setLoadingStates(prev => ({ ...prev, addFile: false }));
-    showToast('Digital asset added successfully and encrypted!', 'success');
+      } else {
+        // Show detailed error message
+        const errorDetail = response.debug ? ` [${response.debug}]` : '';
+        const errorMsg = response.message || 'Unknown error';
+        console.error('Upload Error Response:', response);
+        showToast('❌ Upload Failed: ' + errorMsg + errorDetail, 'error');
+      }
+    } catch (error) {
+      console.error('Upload Error:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      showToast('❌ Network Error: ' + errorMsg, 'error');
+    } finally {
+      setLoadingStates(prev => ({ ...prev, addFile: false }));
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

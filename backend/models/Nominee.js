@@ -96,9 +96,14 @@ NomineeSchema.methods.canAccessDashboard = async function() {
     return { allowed: false, reason: `Nominee status is ${this.status}. Only ACTIVE nominees can access.` };
   }
 
-  // Fetch linked user
-  const User = mongoose.model('User');
-  const user = await User.findById(this.user_id);
+  // Get linked user (handle both populated and non-populated cases)
+  let user = this.user_id;
+  
+  // If user_id is just an ID (not populated), fetch it
+  if (!user || !user._id) {
+    const User = mongoose.model('User');
+    user = await User.findById(this.user_id);
+  }
 
   if (!user) {
     return { allowed: false, reason: 'Associated user account not found.' };

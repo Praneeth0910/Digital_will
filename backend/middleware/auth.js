@@ -64,70 +64,30 @@ export const authenticateUser = async (req, res, next) => {
 /**
  * Middleware to authenticate nominee via JWT
  */
-export const authenticateNominee = async (req, res, next) => {
+export const authenticateNominee = (req, res, next) => {
+  // 1. Get Token from Header
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Access Denied. No token provided.' });
+  }
+
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. No authentication token provided.'
-      });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // 2. Verify Token
+    // Make sure you use the same secret key you used in the Login route!
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hackathon_secret_key_123');
     
-    if (decoded.type !== 'nominee') {
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid token type. Nominee authentication required.'
-      });
-    }
-
-    const nominee = await Nominee.findById(decoded.nomineeId).populate('user_id');
-
-    if (!nominee) {
-      return res.status(404).json({
-        success: false,
-        message: 'Nominee not found. Token may be invalid or expired.'
-      });
-    }
-
-    // CRITICAL: Verify nominee can access
-    const accessCheck = await nominee.canAccessDashboard();
+    // 3. Attach to Request
+    // We attach it to req.nominee so the route can use it
+    req.nominee = decoded;
+    req.nomineeId = decoded.nomineeId;
+    req.userId = decoded.userId;
+    req.ownerId = decoded.userId; // For compatibility with existing routes
     
-    if (!accessCheck.allowed) {
-      return res.status(403).json({
-        success: false,
-        message: accessCheck.reason
-      });
-    }
-
-    req.nominee = nominee;
-    req.nomineeId = nominee._id;
-    req.ownerId = nominee.user_id._id;
-    next();
+    next(); // Pass control to the route
   } catch (error) {
     console.error('Nominee authentication error:', error.message);
-    
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid authentication token.'
-      });
-    }
-    
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication token has expired.'
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Authentication failed.'
-    });
+    res.status(400).json({ success: false, message: 'Invalid Token' });
   }
 };
 

@@ -160,6 +160,18 @@ export const userApi = {
       }
     });
     return response.json();
+  },
+  uploadAsset: async (token: string, formData: FormData): Promise<ApiResponse> => {
+    const response = await fetch(`${API_BASE_URL}/user/upload-asset`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // NOTE: Do NOT set 'Content-Type': 'multipart/form-data' manually.
+        // The browser sets it automatically with the correct boundary for FormData.
+      },
+      body: formData
+    });
+    return response.json();
   }
 };
 

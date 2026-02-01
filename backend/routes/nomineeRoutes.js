@@ -443,44 +443,6 @@ router.post('/upload-death-proof', [
 });
 
 /**
- * GET /api/nominee/dashboard
- * Get nominee dashboard data (requires authentication)
- */
-router.get('/dashboard', authenticateNominee, async (req, res) => {
-  try {
-    const nominee = req.nominee;
-    const user = nominee.user_id;
-
-    res.json({
-      success: true,
-      data: {
-        nominee: {
-          nomineeId: nominee._id,
-          nominee_name: nominee.nominee_name,
-          nominee_email: nominee.nominee_email,
-          beneficiary_reference_id: nominee.beneficiary_reference_id,
-          relation: nominee.relation,
-          status: nominee.status,
-          verified_at: nominee.verified_at
-        },
-        owner: {
-          fullName: user.fullName,
-          email: user.email,
-          continuity_triggered: user.continuity_triggered,
-          date_of_death_verified_at: user.date_of_death_verified_at
-        }
-      }
-    });
-  } catch (error) {
-    console.error('Get dashboard error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch dashboard data.'
-    });
-  }
-});
-
-/**
  * POST /api/nominee/verify-death
  * Admin/System endpoint to approve or reject death verification
  * In production, this would require admin authentication
@@ -578,26 +540,33 @@ router.post('/verify-death', [
  */
 router.get('/dashboard', authenticateNominee, async (req, res) => {
   try {
-    const nomineeId = req.nomineeId;
-    const userId = req.userId;
+    console.log(`=== NOMINEE DASHBOARD REQUEST ===`);
+    console.log(`Nominee ID from Token: ${req.nominee.nomineeId}`); 
 
-    console.log('=== NOMINEE DASHBOARD REQUEST ===');
-    console.log('Nominee ID:', nomineeId);
-    console.log('User ID:', userId);
+    // 1. FETCH DATA FIRST
+    // We cannot log the audit yet because we don't know the user_id (Owner)
+    const nominee = await Nominee.findById(req.nominee.nomineeId).populate('user_id');
 
-    // Log dashboard view
-    await logAudit(nomineeId, userId, 'VIEWED_DASHBOARD', req);
-
-    // Fetch nominee
-    const nominee = await Nominee.findById(nomineeId).populate('user_id');
     if (!nominee) {
-      return res.status(404).json({
-        success: false,
-        message: 'Nominee not found.'
-      });
+      return res.status(404).json({ success: false, message: 'Nominee not found' });
     }
 
-    // Fetch owner (user)
+    // 2. NOW WE HAVE THE IDs
+    const userId = nominee.user_id._id;
+    const nomineeId = nominee._id;
+
+    console.log(`User ID (Owner): ${userId}`);
+
+    // 3. LOG AUDIT NOW (Safe to do because variables are defined)
+    try {
+      await logAudit(nomineeId, userId, 'VIEWED_DASHBOARD', req);
+      console.log("✅ Audit Logged Successfully");
+    } catch (auditError) {
+      console.error("⚠️ Audit Log Failed (Non-fatal):", auditError.message);
+      // Do not crash the dashboard just because logging failed
+    }
+
+    // 4. Fetch owner (user)
     const owner = nominee.user_id;
     if (!owner) {
       return res.status(404).json({
@@ -609,7 +578,7 @@ router.get('/dashboard', authenticateNominee, async (req, res) => {
     // Check if continuity access is triggered
     const accessGranted = owner.continuity_triggered && nominee.status === 'ACTIVE';
 
-    // 1. Owner Information
+    // 5. Owner Information
     const ownerInfo = {
       name: owner.fullName,
       email: owner.email,
@@ -618,19 +587,19 @@ router.get('/dashboard', authenticateNominee, async (req, res) => {
       continuity_trigger_date: owner.continuity_trigger_date || null
     };
 
-    // 2. Nominee Information
+    // 6. Nominee Information
     const nomineeInfo = {
       id: nominee._id.toString(),
       name: nominee.nominee_name,
       email: nominee.nominee_email,
-      relationship: nominee.relationship || 'Beneficiary',
+      relationship: nominee.relation || 'Beneficiary',
       ben_id: nominee.beneficiary_reference_id,
       status: nominee.status,
       verified_at: nominee.verified_at || null,
       access_type: accessGranted ? 'Posthumous | Read-Only' : 'No Access'
     };
 
-    // 3. Released Digital Assets
+    // 7. Released Digital Assets
     let releasedAssets = [];
     if (accessGranted) {
       releasedAssets = await DigitalAsset.find({
@@ -639,7 +608,7 @@ router.get('/dashboard', authenticateNominee, async (req, res) => {
       }).select('asset_name asset_type description status release_condition version_count last_modified released_at file_size mime_type').lean();
     }
 
-    // 4. Legacy Notes (visible to nominee)
+    // 8. Legacy Notes (visible to nominee)
     let legacyNotes = [];
     if (accessGranted) {
       legacyNotes = await LegacyNote.find({
@@ -648,7 +617,7 @@ router.get('/dashboard', authenticateNominee, async (req, res) => {
       }).select('title content category priority release_condition written_date last_modified').lean();
     }
 
-    // 5. Verification Status
+    // 9. Verification Status
     const verificationStatus = {
       death_certificate_status: nominee.status === 'ACTIVE' ? 'Verified' : nominee.status === 'PENDING_VERIFICATION' ? 'Pending' : 'Not Submitted',
       verification_method: nominee.status === 'ACTIVE' ? 'System' : null,
@@ -657,7 +626,7 @@ router.get('/dashboard', authenticateNominee, async (req, res) => {
       access_state: nominee.status === 'ACTIVE' ? 'ACTIVE' : 'SUSPENDED'
     };
 
-    // 6. Recent Audit Logs (last 50 entries)
+    // 10. Recent Audit Logs (last 50 entries)
     const auditLogs = await AuditLog.find({
       nominee_id: nomineeId
     })
@@ -666,7 +635,7 @@ router.get('/dashboard', authenticateNominee, async (req, res) => {
     .select('action action_details ip_address device_type status timestamp')
     .lean();
 
-    // 7. Session Info
+    // 11. Session Info
     const sessionInfo = {
       started_at: new Date(),
       token_expires_in: 3600, // 1 hour in seconds
@@ -695,11 +664,8 @@ router.get('/dashboard', authenticateNominee, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Dashboard fetch error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to load dashboard data.'
-    });
+    console.error('❌ Dashboard Error:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
@@ -742,6 +708,83 @@ router.post('/log-action', authenticateNominee, [
     res.status(500).json({
       success: false,
       message: 'Failed to log action.'
+    });
+  }
+});
+
+/**
+ * POST /api/nominee/admin/activate
+ * Admin endpoint to activate a nominee (for testing/demo)
+ * Body: { nominee_email, beneficiary_reference_id }
+ */
+router.post('/admin/activate', [
+  body('nominee_email').isEmail().normalizeEmail(),
+  body('beneficiary_reference_id').custom(value => {
+    if (!isValidBenIdFormat(value)) {
+      throw new Error('Invalid BEN-ID format');
+    }
+    return true;
+  })
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const { nominee_email, beneficiary_reference_id } = req.body;
+
+    console.log('=== ADMIN: NOMINEE ACTIVATION ===');
+    console.log('Email:', nominee_email);
+    console.log('BEN-ID:', beneficiary_reference_id);
+
+    // Find nominee
+    const nominee = await Nominee.findOne({
+      beneficiary_reference_id: beneficiary_reference_id.toUpperCase(),
+      nominee_email: nominee_email.toLowerCase()
+    }).populate('user_id');
+
+    if (!nominee) {
+      return res.status(404).json({
+        success: false,
+        message: 'Nominee not found.'
+      });
+    }
+
+    // Activate nominee
+    await nominee.activate();
+
+    // Ensure user has continuity triggered
+    const user = nominee.user_id;
+    if (user && !user.continuity_triggered) {
+      user.continuity_triggered = true;
+      await user.save();
+      console.log('✓ User continuity also triggered');
+    }
+
+    console.log('✓ Nominee activated successfully');
+    console.log('Status:', nominee.status);
+    console.log('Verified At:', nominee.verified_at);
+    console.log('=================================');
+
+    res.json({
+      success: true,
+      message: 'Nominee activated successfully.',
+      data: {
+        nominee_id: nominee._id,
+        nominee_name: nominee.nominee_name,
+        status: nominee.status,
+        verified_at: nominee.verified_at
+      }
+    });
+  } catch (error) {
+    console.error('Admin activation error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to activate nominee.'
     });
   }
 });

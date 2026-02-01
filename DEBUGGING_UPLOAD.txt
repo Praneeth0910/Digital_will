@@ -1,0 +1,74 @@
+DEBUGGING CHECKLIST FOR UPLOAD ENDPOINT
+=========================================
+
+The route has been heavily instrumented with logging. When you try to upload again:
+
+1. START OF UPLOAD
+   - Look for: "START OF UPLOAD ENDPOINT"
+   - You should see:
+     * req.user exists: true
+     * req.userId exists: true
+     * req.file exists: true
+     * req.body exists: true
+   
+   ⚠️ IF ANY OF THESE ARE FALSE, THAT'S THE PROBLEM
+
+2. FILE & FORM DATA
+   - Look for: "FILE INFO:" section
+   - Should show: originalname, size, path
+   
+   ⚠️ IF req.file is UNDEFINED, FormData isn't reaching the server
+
+   - Look for: "FORMDATA FIELDS (req.body):" section
+   - Should show: title, description, category values
+   
+   ⚠️ IF ALL EMPTY, FormData fields aren't being parsed
+
+3. AUTHENTICATION
+   - Look for: "AUTHENTICATION:" section
+   - Should show: req.userId with a valid MongoDB ObjectId
+   
+   ⚠️ IF req.userId is undefined, auth middleware failed
+
+4. USER_ID CAPTURE
+   - Look for: "[CAPTURE] capturedUserId before exec:"
+   - Should show: a valid 24-character hex string
+   
+   ⚠️ IF undefined or null, userId wasn't captured
+
+5. INSIDE EXEC CALLBACK
+   - Look for: "[CALLBACK START] capturedUserId in callback:"
+   - Should match the captured value above
+   
+   ⚠️ IF DIFFERENT, variable wasn't captured in closure
+
+6. USER_ID CONVERSION
+   - Look for: "DEBUGGING USER_ID CONVERSION:"
+   - Should show:
+     * capturedUserId: 6xxxxx... (hex string)
+     * Converted to ObjectId: new ObjectId('6xxxxx...')
+     * ObjectId instanceof check: true
+     * Valid check: YES
+   
+   ⚠️ IF ANY OF THESE ARE WRONG, conversion failed
+
+7. DIGITALASSET CREATION
+   - Look for: "DigitalAsset object created"
+   - Should show: user_id in object: new ObjectId('6xxxxx...')
+   
+   ⚠️ IF user_id is undefined here, we have a problem
+
+8. SUCCESS or ERROR
+   - Look for either:
+     ✅ "✅ Asset saved to MongoDB: " (SUCCESS)
+     ❌ "❌ MONGODB SAVE FAILED" (ERROR - show details)
+
+NEXT STEPS
+==========
+
+Please:
+1. Try uploading a file
+2. Copy the ENTIRE server console output
+3. Paste it here
+
+This will tell us exactly where the userId is being lost!

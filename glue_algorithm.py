@@ -5,6 +5,7 @@ import subprocess
 import glob
 import random
 import string
+import sys
 
 # --- CONFIGURATION ---
 SPLIT_EXE = "split.exe"
@@ -20,9 +21,9 @@ try:
     mechanic.encrypt_file.restype = None
     mechanic.decrypt_file.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_ubyte]
     mechanic.decrypt_file.restype = None
-    print(f"✅ Loaded Security Library: {LIB_NAME}")
+    print(f"[OK] Loaded Security Library: {LIB_NAME}")
 except OSError:
-    print(f"❌ Error: Could not find {LIB_NAME}. Did you run the gcc command?")
+    print(f"[ERROR] Could not find {LIB_NAME}. Did you run the gcc command?")
     exit()
 
 # --- 2. HELPER FUNCTIONS ---

@@ -1,3 +1,4 @@
+import assetRoutes from './routes/assetRoutes.js';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -12,6 +13,10 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
+app.use((req, res, next) => {
+  console.log(`📢 HIT: ${req.method} ${req.originalUrl}`);
+  next();
+});
 const PORT = process.env.PORT || 5000;
 
 console.log('═══════════════════════════════════════════════════');
@@ -93,6 +98,7 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/user', assetRoutes);
 app.use('/api/auth', authRoutes);      // ⭐ NEW AUTH ROUTES
 app.use('/api/user', userRoutes);
 app.use('/api/nominee', nomineeRoutes);
