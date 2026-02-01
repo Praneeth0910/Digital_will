@@ -660,3 +660,37 @@
     display: none;
   }
 }
+
+/* ============ NEW COMPONENT STRUCTURE ============ */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.content-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.access-denied-panel {
+  background: white;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.access-denied-panel h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.access-denied-panel p {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+}
