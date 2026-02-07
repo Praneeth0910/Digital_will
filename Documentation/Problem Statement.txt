@@ -1,0 +1,27 @@
+Problem Statement :-
+
+In the 21st century, a person’s life is no longer only physical. It is spread across multiple digital platforms such as:
+
+-Banking apps
+
+-Crypto wallets
+
+-Local storage (photos, documents)
+
+-Social media accounts
+
+-Encrypted password managers
+
+However, current inheritance and nominee systems only work for individual services.
+They do not provide a complete view of a person’s digital life.
+
+As a result:
+
+Families don’t know what digital assets exist
+
+Passwords and encrypted data become inaccessible
+
+Valuable money and memories are permanently lost
+
+This creates a situation called “Digital Paralysis”, where families cannot access or manage digital assets after the owner’s death or incapacity.
+
